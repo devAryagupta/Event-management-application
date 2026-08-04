@@ -8,6 +8,9 @@ const pool =new Pool({
     database: env.db.name,
     password: env.db.password,
     port: env.db.port,
+    ssl: {
+        rejectUnauthorized: false,
+    },  
 });
 
 module.exports = pool;
