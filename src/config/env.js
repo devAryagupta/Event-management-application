@@ -1,4 +1,4 @@
-const path = require('path');
+
 require('dotenv').config()
 function requiredEnv(env) {
     const value = process.env[env];
@@ -9,6 +9,15 @@ function requiredEnv(env) {
 }
 
 module.exports = {
-    port: requiredEnv('PORT'),
+    port: Number(requiredEnv('PORT')),
+    db: {
+        user: requiredEnv('DB_USER'),
+        host: requiredEnv('DB_HOST'),
+        name: requiredEnv('DB_NAME'),
+        password: requiredEnv('DB_PASSWORD'),
+        port: Number(requiredEnv('DB_PORT')),
+    },
     requiredEnv
+
+
 }
