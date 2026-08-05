@@ -1,4 +1,5 @@
 const TOKEN_KEY = 'access_token';
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '');
 
 export function getToken() {
   return sessionStorage.getItem(TOKEN_KEY);
@@ -27,7 +28,8 @@ async function request(path, options = {}) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const res = await fetch(`/api${path}`, {
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  const res = await fetch(`${API_BASE_URL}${normalizedPath}`, {
     ...options,
     headers,
   });

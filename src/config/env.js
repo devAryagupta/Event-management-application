@@ -21,6 +21,5 @@ module.exports = {
         secret: requiredEnv('JWT_SECRET'),
         expiration: requiredEnv('JWT_EXPIRATION'),
     },
-
-
+    frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
 }

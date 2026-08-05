@@ -20,6 +20,7 @@ const {
 const createUserRoutes = require('./src/api/routes/user.routes');
 const createEventRoutes = require('./src/api/routes/event.routes');
 const requestLogger = require('./src/api/middlewares/requestLogger');
+const createCorsMiddleware = require('./src/api/middlewares/cors');
 const logger = require('./src/shared/logger');
 
 const app = express();
@@ -28,6 +29,7 @@ const SHUTDOWN_TIMEOUT_MS = 10000;
 let httpServer;
 let isShuttingDown = false;
 
+app.use(createCorsMiddleware({ frontendUrl: env.frontendUrl }));
 app.use(express.json());
 app.use(requestLogger);
 
