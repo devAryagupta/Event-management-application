@@ -12,7 +12,9 @@ class UpdateEventUseCase {
         throw err;
       }
       if (existing.organizerId !== actorId) {
-        const err = new Error('Only organizer can update this event');
+        const err = new Error(
+          'Only the organizer can edit this meeting.'
+        );
         err.statusCode = 403;
         throw err;
       }
@@ -44,9 +46,11 @@ class UpdateEventUseCase {
           );
         } catch (e) {
           const err = new Error(
-            'Updated time conflicts with a participant availability'
+            'The new time conflicts with another meeting for one or more participants. Please choose a different slot.'
           );
           err.statusCode = 409;
+          err.code = 'CONFLICT';
+          err.status = 'Not Available';
           throw err;
         }
       }

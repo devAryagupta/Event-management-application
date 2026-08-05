@@ -1,3 +1,10 @@
+const {
+  createHttpError,
+  conflictError,
+  isAvailabilityConflict,
+  isUniqueViolation,
+} = require('../../shared/httpError');
+
 class CreateEventUseCase {
   constructor(
     eventRepository,
@@ -23,27 +30,29 @@ class CreateEventUseCase {
     profileIds = [],
   }) {
     if (!title || !timezone || !startTime || !endTime || !organizerId) {
-      const err = new Error('title, timezone, startTime, endTime are required');
-      err.statusCode = 400;
-      throw err;
+      throw createHttpError(
+        'Please provide a title, timezone, start time, and end time.',
+        400
+      );
     }
     if (new Date(endTime) <= new Date(startTime)) {
-      const err = new Error('endTime must be after startTime');
-      err.statusCode = 400;
-      throw err;
+      throw createHttpError('End time must be after start time.', 400);
     }
 
     const uniqueProfileIds = [
       ...new Set((profileIds || []).filter(Boolean)),
     ].filter((id) => id !== organizerId);
 
+    const attendeesById = new Map();
     for (const userId of uniqueProfileIds) {
       const user = await this.userRepository.findById(userId);
       if (!user) {
-        const err = new Error(`User not found: ${userId}`);
-        err.statusCode = 404;
-        throw err;
+        throw createHttpError(
+          'One of the selected profiles could not be found. Please refresh and try again.',
+          404
+        );
       }
+      attendeesById.set(userId, user);
     }
 
     let event;
@@ -58,15 +67,26 @@ class CreateEventUseCase {
         organizerId,
       });
 
-      await this.participantsRepository.create({
-        eventId: event.id,
-        userId: organizerId,
-        role: 'organizer',
-        duringStart: startTime,
-        duringEnd: endTime,
-      });
+      try {
+        await this.participantsRepository.create({
+          eventId: event.id,
+          userId: organizerId,
+          role: 'organizer',
+          duringStart: startTime,
+          duringEnd: endTime,
+        });
+      } catch (e) {
+        if (isAvailabilityConflict(e)) {
+          throw conflictError(
+            'You already have another meeting at this time. Please choose a different slot.',
+            { status: 'Not Available' }
+          );
+        }
+        throw e;
+      }
 
       for (const userId of uniqueProfileIds) {
+        const attendee = attendeesById.get(userId);
         try {
           await this.participantsRepository.create({
             eventId: event.id,
@@ -76,12 +96,22 @@ class CreateEventUseCase {
             duringEnd: endTime,
           });
         } catch (e) {
-          const err = new Error(
-            e.code === '23505' ? 'User already in event' : 'Not Available'
+          if (isUniqueViolation(e)) {
+            throw conflictError(
+              `${attendee.name} is already part of this meeting.`,
+              { status: 'Already In Event' }
+            );
+          }
+          if (isAvailabilityConflict(e)) {
+            throw conflictError(
+              `${attendee.name} is not available at this time. Please choose another slot or remove them from the meeting.`,
+              { status: 'Not Available', busyUserId: userId, busyUserName: attendee.name }
+            );
+          }
+          throw conflictError(
+            `${attendee.name} could not be added to this meeting. Please try a different time.`,
+            { status: 'Not Available' }
           );
-          err.statusCode = 409;
-          if (e.code !== '23505') err.status = 'Not Available';
-          throw err;
         }
       }
 
@@ -108,7 +138,6 @@ class CreateEventUseCase {
 
       return event;
     } catch (err) {
-      // Compensate partial create so we don't leave a half-built event.
       if (event?.id) {
         try {
           await this.eventRepository.delete(event.id);

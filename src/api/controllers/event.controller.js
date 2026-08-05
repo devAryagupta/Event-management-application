@@ -8,6 +8,20 @@ const {
   mapLogsForViewer,
 } = require('../mappers/eventResponse.mapper');
 
+function sendError(res, err) {
+  const statusCode = err.statusCode || 500;
+  const message =
+    statusCode >= 500
+      ? 'Something went wrong. Please try again.'
+      : err.message || 'Request failed.';
+
+  return res.status(statusCode).json({
+    error: message,
+    ...(err.status ? { status: err.status } : {}),
+    ...(err.code ? { code: err.code } : {}),
+  });
+}
+
 function createEventController({
   createEventUseCase,
   updateEventUseCase,
@@ -44,10 +58,7 @@ function createEventController({
           event: mapEventForViewer(event, actorTimezone),
         });
       } catch (err) {
-        return res.status(err.statusCode || 500).json({
-          error: err.message,
-          ...(err.status ? { status: err.status } : {}),
-        });
+        return sendError(res, err);
       }
     },
 
@@ -62,7 +73,7 @@ function createEventController({
           events: mapEventsForViewer(events, viewerTimezone),
         });
       } catch (err) {
-        return res.status(err.statusCode || 500).json({ error: err.message });
+        return sendError(res, err);
       }
     },
 
@@ -79,7 +90,7 @@ function createEventController({
           participants: data.participants,
         });
       } catch (err) {
-        return res.status(err.statusCode || 500).json({ error: err.message });
+        return sendError(res, err);
       }
     },
 
@@ -97,7 +108,7 @@ function createEventController({
           event: mapEventForViewer(event, actorTimezone),
         });
       } catch (err) {
-        return res.status(err.statusCode || 500).json({ error: err.message });
+        return sendError(res, err);
       }
     },
 
@@ -113,10 +124,7 @@ function createEventController({
         });
         return res.status(200).json({ attendee });
       } catch (err) {
-        return res.status(err.statusCode || 500).json({
-          error: err.message,
-          ...(err.status ? { status: err.status } : {}),
-        });
+        return sendError(res, err);
       }
     },
 
@@ -132,7 +140,7 @@ function createEventController({
           event: mapEventForViewer(event, actorTimezone),
         });
       } catch (err) {
-        return res.status(err.statusCode || 500).json({ error: err.message });
+        return sendError(res, err);
       }
     },
 
@@ -148,7 +156,7 @@ function createEventController({
         });
         return res.status(200).json({ attendee });
       } catch (err) {
-        return res.status(err.statusCode || 500).json({ error: err.message });
+        return sendError(res, err);
       }
     },
 
@@ -164,7 +172,7 @@ function createEventController({
           logs: mapLogsForViewer(logs, viewerTimezone),
         });
       } catch (err) {
-        return res.status(err.statusCode || 500).json({ error: err.message });
+        return sendError(res, err);
       }
     },
   };
