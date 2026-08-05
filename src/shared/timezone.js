@@ -10,4 +10,10 @@ function toViewerTime(utcValue, timezone = 'UTC') {
 function isValidTimezone(timezone) {
   return Boolean(timezone) && DateTime.now().setZone(timezone).isValid;
 }
-module.exports = { toViewerTime, isValidTimezone };
+function listSupportedTimezones() {
+  const supportsIntlZones = typeof Intl?.supportedValuesOf === 'function';
+  const intlZones = supportsIntlZones ? Intl.supportedValuesOf('timeZone') : [];
+  const unique = new Set(['UTC', ...intlZones]);
+  return [...unique].sort((a, b) => a.localeCompare(b)).map((value) => ({ value, label: value }));
+}
+module.exports = { toViewerTime, isValidTimezone, listSupportedTimezones };

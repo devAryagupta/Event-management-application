@@ -1,11 +1,13 @@
 const { toRegisterUserDto } = require('../dto/registerUser.dto');
 const { toLoginUserDto } = require('../dto/loginuser.dto');
 const { toUpdateTimezoneDto } = require('../dto/updateTimezone.dto');
+const { listSupportedTimezones } = require('../../shared/timezone');
 
 function createUserController({
   registerUserUseCase,
   loginUserUseCase,
   updateTimezoneUseCase,
+  listUsersUseCase,
 }) {
   return {
     async register(req, res) {
@@ -38,6 +40,23 @@ function createUserController({
         return res.status(200).json({ user });
       } catch (err) {
         return res.status(err.statusCode || 500).json({ error: err.message });
+      }
+    },
+
+    async list(req, res) {
+      try {
+        const users = await listUsersUseCase.execute();
+        return res.status(200).json({ users });
+      } catch (err) {
+        return res.status(err.statusCode || 500).json({ error: err.message });
+      }
+    },
+
+    async listTimezones(req, res) {
+      try {
+        return res.status(200).json({ timezones: listSupportedTimezones() });
+      } catch (err) {
+        return res.status(500).json({ error: err.message || 'Could not list timezones' });
       }
     },
   };
