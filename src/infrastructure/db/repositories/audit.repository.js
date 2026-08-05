@@ -51,9 +51,9 @@ class AuditRepository extends AuditRepositoryPort {
         // event id stored in the JSON snapshot.
         const result = await this.baseRepository.query(
             `SELECT * FROM audit_logs
-             WHERE event_id = $1
-                OR previous_value->>'id' = $1
-                OR new_value->>'id' = $1
+             WHERE event_id = $1::uuid
+                OR previous_value->>'id' = $1::text
+                OR new_value->>'id' = $1::text
              ORDER BY created_at ASC`,
             [eventId]
         );
