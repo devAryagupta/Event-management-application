@@ -1,5 +1,5 @@
 const { toRegisterUserDto } = require('../dto/registerUser.dto');
-const { toLoginUserDto } = require('../dto/loginuser.dto');
+const { toLoginUserDto } = require('../dto/loginUser.dto');
 const { toUpdateTimezoneDto } = require('../dto/updateTimezone.dto');
 const { listSupportedTimezones } = require('../../shared/timezone');
 const sendApiError = require('../http/sendApiError');
