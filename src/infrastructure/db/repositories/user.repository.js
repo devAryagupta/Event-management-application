@@ -73,5 +73,18 @@ class UserRepository extends UserRepositoryPort {
         }
         return this.baseRepository.mapone(result, this.toEntity);
     }
+    async updateTimezone(id, timezone) {
+        const result = await this.baseRepository.query(
+            `UPDATE users
+             SET timezone = $1, updated_at = NOW()
+             WHERE id = $2
+             RETURNING *`,
+            [timezone, id]
+        );
+        if (result.rowCount === 0) {
+            return null;
+        }
+        return this.baseRepository.mapone(result, this.toEntity);
+    }
 }
 module.exports = UserRepository;

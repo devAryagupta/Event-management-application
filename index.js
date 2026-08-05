@@ -4,6 +4,7 @@ const {
   pool,
   registerUserUseCase,
   loginUserUseCase,
+  updateTimezoneUseCase,
   jwtService,
   createEventUseCase,
   listEventsUseCase,
@@ -13,6 +14,7 @@ const {
   addAttendeeUseCase,
   removeAttendeeUseCase,
   getAuditLogsUseCase,
+  userRepository,
 } = require('./src/container');
 const createUserRoutes = require('./src/api/routes/user.routes');
 const createEventRoutes = require('./src/api/routes/event.routes');
@@ -25,7 +27,16 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.use('/api', createUserRoutes({ registerUserUseCase, loginUserUseCase }));
+app.use(
+  '/api',
+  createUserRoutes({
+    registerUserUseCase,
+    loginUserUseCase,
+    updateTimezoneUseCase,
+    jwtService,
+  })
+);
+
 app.use(
   '/api',
   createEventRoutes({
@@ -38,6 +49,7 @@ app.use(
     addAttendeeUseCase,
     removeAttendeeUseCase,
     getAuditLogsUseCase,
+    userRepository,
   })
 );
 

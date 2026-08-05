@@ -50,12 +50,25 @@ class UpdateEventUseCase {
           throw err;
         }
       }
+      const toSnapshot = (event) => ({
+        id: event.id,
+        title: event.title,
+        description: event.description,
+        location: event.location,
+        timezone: event.timezone,
+        startTime: event.startTime,
+        endTime: event.endTime,
+        organizerId: event.organizerId,
+        createdAt: event.createdAt,
+        updatedAt: event.updatedAt,
+      });
+
       await this.auditRepository.create({
         eventId,
         changedBy: actorId,
         changedType: 'UPDATE',
-        previousValue: existing,
-        newValue: updated,
+        previousValue: toSnapshot(existing),
+        newValue: toSnapshot(updated),
         actorTimezone,
       });
       return updated;

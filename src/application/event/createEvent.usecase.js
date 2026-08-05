@@ -55,6 +55,8 @@ class CreateEventUseCase {
           startTime: event.startTime,
           endTime: event.endTime,
           organizerId: event.organizerId,
+          createdAt: event.createdAt,
+          updatedAt: event.updatedAt,
         },
         actorTimezone,
       });

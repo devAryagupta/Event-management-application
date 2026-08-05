@@ -47,8 +47,14 @@ class AuditRepository extends AuditRepositoryPort {
     }
 
     async findByEventId(eventId) {
+        // Include detached DELETE logs (event_id SET NULL) by matching the
+        // event id stored in the JSON snapshot.
         const result = await this.baseRepository.query(
-            'SELECT * FROM audit_logs WHERE event_id = $1',
+            `SELECT * FROM audit_logs
+             WHERE event_id = $1
+                OR previous_value->>'id' = $1
+                OR new_value->>'id' = $1
+             ORDER BY created_at ASC`,
             [eventId]
         );
         return this.baseRepository.mapmany(result, this.toEntity);

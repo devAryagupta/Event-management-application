@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS audit_logs (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    event_id        UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+    -- Nullable + SET NULL so DELETE audits survive when the event row is removed.
+    event_id        UUID REFERENCES events(id) ON DELETE SET NULL,
     changed_by      UUID NOT NULL REFERENCES users(id),
     change_type     VARCHAR(50) NOT NULL,
     previous_value  JSONB,
