@@ -16,6 +16,7 @@ const GetAuditLogsUseCase = require('./application/event/getAuditLogs.usecase');
 const RegisterUserUseCase = require('./application/user/registerUser.usecase');
 const LoginUserUseCase = require('./application/user/loginUser.usecase');
 const UpdateTimezoneUseCase = require('./application/user/updateTimezone.usecase');
+const ListUsersUseCase = require('./application/user/listUsers.usecase');
 
 const jwtService = new JwtService();
 const userRepository = new UserRepository(pool);
@@ -26,6 +27,7 @@ const auditRepository = new AuditRepository(pool);
 const registerUserUseCase = new RegisterUserUseCase(userRepository);
 const loginUserUseCase = new LoginUserUseCase(userRepository, jwtService);
 const updateTimezoneUseCase = new UpdateTimezoneUseCase(userRepository);
+const listUsersUseCase = new ListUsersUseCase(userRepository);
 const createEventUseCase = new CreateEventUseCase(
   eventRepository,
   participantsRepository,
@@ -66,6 +68,7 @@ module.exports = {
   registerUserUseCase,
   loginUserUseCase,
   updateTimezoneUseCase,
+  listUsersUseCase,
   jwtService,
   createEventUseCase,
   listEventsUseCase,
