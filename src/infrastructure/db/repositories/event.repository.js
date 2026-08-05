@@ -21,7 +21,20 @@ class EventRepository extends EventRepositoryPort {
         }); 
     }
     async create(event) {
-        const result = await this.baseRepository.query('INSERT INTO events (title, description, start_time, end_time, timezone, organizer_id, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *', [event.title, event.description, event.startTime, event.endTime, event.timezone, event.organizerId, event.createdAt, event.updatedAt]);
+        const result = await this.baseRepository.query(
+            `INSERT INTO events (title, description, location, start_time, end_time, timezone, organizer_id)
+             VALUES ($1, $2, $3, $4, $5, $6, $7)
+             RETURNING *`,
+            [
+                event.title,
+                event.description,
+                event.location,
+                event.startTime,
+                event.endTime,
+                event.timezone,
+                event.organizerId,
+            ]
+        );
         return this.baseRepository.mapone(result, this.toEntity);
     }
     async findById(id) {
@@ -37,8 +50,30 @@ class EventRepository extends EventRepositoryPort {
         return this.baseRepository.mapmany(result, this.toEntity);
     }
     async update(id, event) {
-            const result = await this.baseRepository.query('UPDATE events SET title = $1, description = $2, location = $3, start_time = $4, end_time = $5, timezone = $6, organizer_id = $7, updated_at = $8 WHERE id = $9 RETURNING *', [event.title, event.description, event.location, event.startTime, event.endTime, event.timezone, event.organizerId, event.updatedAt, id]);
-        if(result.rowCount === 0) {
+        const result = await this.baseRepository.query(
+            `UPDATE events
+             SET title = $1,
+                 description = $2,
+                 location = $3,
+                 start_time = $4,
+                 end_time = $5,
+                 timezone = $6,
+                 organizer_id = $7,
+                 updated_at = NOW()
+             WHERE id = $8
+             RETURNING *`,
+            [
+                event.title,
+                event.description,
+                event.location,
+                event.startTime,
+                event.endTime,
+                event.timezone,
+                event.organizerId,
+                id,
+            ]
+        );
+        if (result.rowCount === 0) {
             return null;
         }
         return this.baseRepository.mapone(result, this.toEntity);

@@ -19,7 +19,18 @@ class UserRepository extends UserRepositoryPort {
         }); 
     }
     async create(user) {
-        const result = await this.baseRepository.query('INSERT INTO users (name, email, password_hash, is_admin, timezone, created_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *', [user.name, user.email, user.passwordHash, user.isAdmin, user.timezone, user.createdAt]);
+        const result = await this.baseRepository.query(
+            `INSERT INTO users (name, email, password_hash, is_admin, timezone)
+             VALUES ($1, $2, $3, $4, $5)
+             RETURNING *`,
+            [
+                user.name,
+                user.email,
+                user.passwordHash,
+                user.isAdmin ?? false,
+                user.timezone ?? 'UTC',
+            ]
+        );
         return this.baseRepository.mapone(result, this.toEntity);
     }
     async findById(id) {
@@ -31,8 +42,26 @@ class UserRepository extends UserRepositoryPort {
         return this.baseRepository.mapone(result, this.toEntity);
     }
     async update(id, user) {
-        const result = await this.baseRepository.query('UPDATE users SET name = $1, email = $2, password_hash = $3, is_admin = $4, timezone = $5, created_at = $6 WHERE id = $7 RETURNING *', [user.name,   user.email, user.passwordHash, user.isAdmin, user.timezone, user.createdAt, id]);
-        if(result.rowCount === 0) {
+        const result = await this.baseRepository.query(
+            `UPDATE users
+             SET name = $1,
+                 email = $2,
+                 password_hash = $3,
+                 is_admin = $4,
+                 timezone = $5,
+                 updated_at = NOW()
+             WHERE id = $6
+             RETURNING *`,
+            [
+                user.name,
+                user.email,
+                user.passwordHash,
+                user.isAdmin,
+                user.timezone,
+                id,
+            ]
+        );
+        if (result.rowCount === 0) {
             return null;
         }
         return this.baseRepository.mapone(result, this.toEntity);
