@@ -4,9 +4,11 @@ const EventRepository = require('./infrastructure/db/repositories/event.reposito
 const ParticipantsRepository = require('./infrastructure/db/repositories/participants.repository');
 const AuditRepository = require('./infrastructure/db/repositories/audit.repository');
 
+const RegisterUserUseCase = require('./application/user/registerUser.usecase');
+
 const userRepository = new UserRepository(pool);
 const eventRepository = new EventRepository(pool);
 const participantsRepository = new ParticipantsRepository(pool);
 const auditRepository = new AuditRepository(pool); 
 
-module.exports = { pool, userRepository, eventRepository, participantsRepository, auditRepository };
+module.exports = { pool, userRepository, eventRepository, participantsRepository, auditRepository, RegisterUserUseCase };

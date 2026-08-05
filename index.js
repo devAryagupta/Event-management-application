@@ -1,6 +1,7 @@
 const express = require('express');
 const env = require('./src/config/env');
-const {pool } =require('./src/container');
+const { pool, userRepository, RegisterUserUseCase } = require('./src/container');
+const createUserRoutes = require('./src/api/routes/user.routes');
 const app = express();
 
 app.use(express.json());
@@ -9,6 +10,7 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
   });
 
+app.use('/api', createUserRoutes({ registerUserUseCase: new RegisterUserUseCase(userRepository) }));
 async function start() {
     try {
         await pool.query('SELECT 1');
