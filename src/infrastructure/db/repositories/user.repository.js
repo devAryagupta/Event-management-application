@@ -86,5 +86,12 @@ class UserRepository extends UserRepositoryPort {
         }
         return this.baseRepository.mapone(result, this.toEntity);
     }
+
+    async list() {
+        const result = await this.baseRepository.query(
+            'SELECT * FROM users ORDER BY name ASC'
+        );
+        return this.baseRepository.mapmany(result, this.toEntity);
+    }
 }
 module.exports = UserRepository;
