@@ -4,6 +4,7 @@ const EventRepository = require('./infrastructure/db/repositories/event.reposito
 const ParticipantsRepository = require('./infrastructure/db/repositories/participants.repository');
 const AuditRepository = require('./infrastructure/db/repositories/audit.repository');
 const JwtService = require('./infrastructure/auth/jwt.service');
+const CreateEventUseCase = require('./application/event/createEvent.usecase');
 
 const RegisterUserUseCase = require('./application/user/registerUser.usecase');
 const LoginUserUseCase = require('./application/user/loginUser.usecase');
@@ -15,5 +16,5 @@ const participantsRepository = new ParticipantsRepository(pool);
 const auditRepository = new AuditRepository(pool); 
 const registerUserUseCase = new RegisterUserUseCase(userRepository);
 const loginUserUseCase = new LoginUserUseCase(userRepository, jwtService);
-
-module.exports = { pool, userRepository, eventRepository, participantsRepository, auditRepository, registerUserUseCase, loginUserUseCase, jwtService };
+const createEventUseCase = new CreateEventUseCase(eventRepository, participantsRepository, auditRepository);
+module.exports = { pool, userRepository, eventRepository, participantsRepository, auditRepository, registerUserUseCase, loginUserUseCase, jwtService, createEventUseCase };
