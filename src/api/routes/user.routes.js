@@ -1,9 +1,11 @@
 const express = require('express');
 const createUserController = require('../controllers/user.controller');
 
-function createUserRoutes({ registerUserUseCase }) {
+function createUserRoutes({ registerUserUseCase, loginUserUseCase }) {
   const router = express.Router();
-  router.post('/auth/register',(req, res) => createUserController({ registerUserUseCase }).register(req, res));
+  const userController = createUserController({ registerUserUseCase, loginUserUseCase });   
+  router.post('/auth/register',(req, res) => userController.register(req, res));
+  router.post('/auth/login',(req, res) => userController.login(req, res));
   return router;
 }
 

@@ -17,7 +17,10 @@ module.exports = {
         password: requiredEnv('DB_PASSWORD'),
         port: Number(requiredEnv('DB_PORT')),
     },
-    requiredEnv
+    jwt: {
+        secret: requiredEnv('JWT_SECRET'),
+        expiration: requiredEnv('JWT_EXPIRATION'),
+    },
 
 
 }
