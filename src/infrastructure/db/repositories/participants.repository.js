@@ -114,6 +114,30 @@ class ParticipantsRepository extends ParticipantsRepositoryPort {
     }
     return this.baseRepository.mapone(result, this.toEntity);
   }
+  //delete by event and user id to delete all participants of an event
+  async deleteByEventAndUser(eventId, userId) {
+    const result = await this.baseRepository.query(
+      'DELETE FROM participants WHERE event_id = $1 AND user_id = $2 RETURNING *',
+      [eventId, userId]
+    );
+    if (result.rowCount === 0) {
+      return null;
+    }
+    return this.baseRepository.mapone(result, this.toEntity);
+  }
+  async updateDuringByEventId(eventId, startTime, endTime) {
+    const result = await this.baseRepository.query(
+      `UPDATE participants
+       SET during = tstzrange($1::timestamptz, $2::timestamptz, '[)')
+       WHERE event_id = $3
+       RETURNING *`,
+      [startTime, endTime, eventId]
+    );
+    if (result.rowCount === 0) {
+      return null;
+    }
+    return this.baseRepository.mapmany(result, this.toEntity);
+  }
 }
 
 module.exports = ParticipantsRepository;

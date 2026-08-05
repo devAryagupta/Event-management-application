@@ -85,5 +85,9 @@ class EventRepository extends EventRepositoryPort {
         }
         return this.baseRepository.mapone(result, this.toEntity);
     }
+    async list() {
+        const result = await this.baseRepository.query('SELECT * FROM events');
+        return this.baseRepository.mapmany(result, this.toEntity);
+    }
 }
 module.exports = EventRepository;
