@@ -29,7 +29,8 @@ const updateTimezoneUseCase = new UpdateTimezoneUseCase(userRepository);
 const createEventUseCase = new CreateEventUseCase(
   eventRepository,
   participantsRepository,
-  auditRepository
+  auditRepository,
+  userRepository
 );
 const listEventsUseCase = new ListEventsUseCase(eventRepository);
 const getEventUseCase = new GetEventUseCase(eventRepository, participantsRepository);

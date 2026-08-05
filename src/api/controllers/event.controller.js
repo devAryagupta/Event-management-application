@@ -30,7 +30,13 @@ function createEventController({
         const input = toCreateEventDto(req.body);
         const actorTimezone = await getActorTimezone(req.user.id);
         const event = await createEventUseCase.execute({
-          ...input,
+          title: input.title,
+          description: input.description,
+          location: input.location,
+          timezone: input.timezone,
+          startTime: input.startTime,
+          endTime: input.endTime,
+          profileIds: input.profileIds,
           organizerId: req.user.id,
           actorTimezone,
         });
@@ -38,7 +44,10 @@ function createEventController({
           event: mapEventForViewer(event, actorTimezone),
         });
       } catch (err) {
-        return res.status(err.statusCode || 500).json({ error: err.message });
+        return res.status(err.statusCode || 500).json({
+          error: err.message,
+          ...(err.status ? { status: err.status } : {}),
+        });
       }
     },
 
