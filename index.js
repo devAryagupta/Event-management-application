@@ -12,6 +12,7 @@ const {
   deleteEventUseCase,
   addAttendeeUseCase,
   removeAttendeeUseCase,
+  getAuditLogsUseCase,
 } = require('./src/container');
 const createUserRoutes = require('./src/api/routes/user.routes');
 const createEventRoutes = require('./src/api/routes/event.routes');
@@ -36,6 +37,7 @@ app.use(
     deleteEventUseCase,
     addAttendeeUseCase,
     removeAttendeeUseCase,
+    getAuditLogsUseCase,
   })
 );
 

@@ -13,6 +13,8 @@ const AddAttendeeUseCase = require('./application/event/addAttendee.usecase');
 const RemoveAttendeeUseCase = require('./application/event/removeAttendee.usecase');
 const RegisterUserUseCase = require('./application/user/registerUser.usecase');
 const LoginUserUseCase = require('./application/user/loginUser.usecase');
+const GetAuditLogsUseCase = require('./application/event/getAuditLogs.usecase');
+
 
 const jwtService = new JwtService();
 const userRepository = new UserRepository(pool);
@@ -46,7 +48,7 @@ const removeAttendeeUseCase = new RemoveAttendeeUseCase(
   participantsRepository,
   auditRepository
 );
-
+const getAuditLogsUseCase = new GetAuditLogsUseCase(auditRepository,eventRepository,participantsRepository);
 module.exports = {
   pool,
   userRepository,
@@ -63,4 +65,5 @@ module.exports = {
   deleteEventUseCase,
   addAttendeeUseCase,
   removeAttendeeUseCase,
+  getAuditLogsUseCase,
 };

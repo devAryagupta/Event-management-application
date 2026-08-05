@@ -11,6 +11,7 @@ function createEventController({
   listEventsUseCase,
   getEventUseCase,
   deleteEventUseCase,
+  getAuditLogsUseCase,
 }) {
   return {
     async create(req, res) {
@@ -100,6 +101,15 @@ function createEventController({
         return res.status(err.statusCode || 500).json({ error: err.message });
       }
     },
+    async getAuditLogs(req, res) {
+      try {
+            const logs = await getAuditLogsUseCase.execute(req.params.id, req.user.id, req.user.isAdmin === true);
+        return res.status(200).json({ logs });
+      } catch (err) {
+        return res.status(err.statusCode || 500).json({
+          error: err.message,});
+      }
+    },
   };
-}
+} 
 module.exports = createEventController;
