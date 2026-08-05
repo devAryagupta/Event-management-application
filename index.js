@@ -33,6 +33,10 @@ app.use(createCorsMiddleware({ frontendUrl: env.frontendUrl }));
 app.use(express.json());
 app.use(requestLogger);
 
+app.get('/', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
