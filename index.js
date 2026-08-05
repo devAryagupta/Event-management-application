@@ -19,6 +19,8 @@ const {
 } = require('./src/container');
 const createUserRoutes = require('./src/api/routes/user.routes');
 const createEventRoutes = require('./src/api/routes/event.routes');
+const requestLogger = require('./src/api/middlewares/requestLogger');
+const logger = require('./src/shared/logger');
 
 const app = express();
 const MAX_PORT_RETRIES = 5;
@@ -27,6 +29,7 @@ let httpServer;
 let isShuttingDown = false;
 
 app.use(express.json());
+app.use(requestLogger);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
@@ -66,7 +69,7 @@ function listenWithPortFallback(startPort, retries = MAX_PORT_RETRIES) {
     const tryListen = (port) => {
       const server = app.listen(port, () => {
         if (port !== startPort) {
-          console.warn(`Primary port ${startPort} is busy, backend started on ${port}`);
+          logger.warn(`Primary port ${startPort} is busy, backend started on ${port}`);
         }
         resolve({ server, port });
       });
@@ -75,7 +78,7 @@ function listenWithPortFallback(startPort, retries = MAX_PORT_RETRIES) {
         if (err.code === 'EADDRINUSE' && attempt < retries) {
           attempt += 1;
           const nextPort = startPort + attempt;
-          console.warn(`Port ${port} is in use. Retrying on ${nextPort}...`);
+          logger.warn(`Port ${port} is in use. Retrying on ${nextPort}...`);
           tryListen(nextPort);
           return;
         }
@@ -90,10 +93,10 @@ function listenWithPortFallback(startPort, retries = MAX_PORT_RETRIES) {
 async function shutdown(signal, exitCode = 0) {
   if (isShuttingDown) return;
   isShuttingDown = true;
-  console.log(`${signal} received. Shutting down gracefully...`);
+  logger.info(`${signal} received. Shutting down gracefully...`);
 
   const forceExitTimer = setTimeout(() => {
-    console.error('Graceful shutdown timed out. Forcing exit.');
+    logger.error('Graceful shutdown timed out. Forcing exit.');
     process.exit(1);
   }, SHUTDOWN_TIMEOUT_MS);
 
@@ -111,16 +114,16 @@ async function shutdown(signal, exitCode = 0) {
           resolve();
         });
       });
-      console.log('HTTP server closed.');
+      logger.info('HTTP server closed.');
     }
 
     await pool.end();
-    console.log('Database pool closed.');
+    logger.info('Database pool closed.');
     clearTimeout(forceExitTimer);
     process.exit(exitCode);
   } catch (err) {
     clearTimeout(forceExitTimer);
-    console.error('Error during graceful shutdown', err);
+    logger.error('Error during graceful shutdown', err);
     process.exit(1);
   }
 }
@@ -128,12 +131,12 @@ async function shutdown(signal, exitCode = 0) {
 async function start() {
   try {
     await pool.query('SELECT 1');
-    console.log(`Database connected to ${env.db.host}:${env.db.port}/${env.db.name}`);
+    logger.info(`Database connected to ${env.db.host}:${env.db.port}/${env.db.name}`);
     const { server, port } = await listenWithPortFallback(env.port);
     httpServer = server;
-    console.log(`app listening on port ${port}`);
+    logger.info(`app listening on port ${port}`);
   } catch (err) {
-    console.error('Failed to start the application', err);
+    logger.error('Failed to start the application', err);
     process.exit(1);
   }
 }
@@ -157,12 +160,12 @@ process.once('SIGUSR2', () => {
 });
 
 process.on('uncaughtException', (err) => {
-  console.error('Uncaught exception', err);
+  logger.error('Uncaught exception', err);
   shutdown('uncaughtException', 1);
 });
 
 process.on('unhandledRejection', (reason) => {
-  console.error('Unhandled rejection', reason);
+  logger.error('Unhandled rejection', reason);
   shutdown('unhandledRejection', 1);
 });
 
