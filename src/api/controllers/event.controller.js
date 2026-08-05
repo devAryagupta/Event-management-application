@@ -7,20 +7,7 @@ const {
   mapEventsForViewer,
   mapLogsForViewer,
 } = require('../mappers/eventResponse.mapper');
-
-function sendError(res, err) {
-  const statusCode = err.statusCode || 500;
-  const message =
-    statusCode >= 500
-      ? 'Something went wrong. Please try again.'
-      : err.message || 'Request failed.';
-
-  return res.status(statusCode).json({
-    error: message,
-    ...(err.status ? { status: err.status } : {}),
-    ...(err.code ? { code: err.code } : {}),
-  });
-}
+const sendApiError = require('../http/sendApiError');
 
 function createEventController({
   createEventUseCase,
@@ -58,7 +45,7 @@ function createEventController({
           event: mapEventForViewer(event, actorTimezone),
         });
       } catch (err) {
-        return sendError(res, err);
+        return sendApiError(req, res, err);
       }
     },
 
@@ -73,7 +60,7 @@ function createEventController({
           events: mapEventsForViewer(events, viewerTimezone),
         });
       } catch (err) {
-        return sendError(res, err);
+        return sendApiError(req, res, err);
       }
     },
 
@@ -90,7 +77,7 @@ function createEventController({
           participants: data.participants,
         });
       } catch (err) {
-        return sendError(res, err);
+        return sendApiError(req, res, err);
       }
     },
 
@@ -108,7 +95,7 @@ function createEventController({
           event: mapEventForViewer(event, actorTimezone),
         });
       } catch (err) {
-        return sendError(res, err);
+        return sendApiError(req, res, err);
       }
     },
 
@@ -124,7 +111,7 @@ function createEventController({
         });
         return res.status(200).json({ attendee });
       } catch (err) {
-        return sendError(res, err);
+        return sendApiError(req, res, err);
       }
     },
 
@@ -140,7 +127,7 @@ function createEventController({
           event: mapEventForViewer(event, actorTimezone),
         });
       } catch (err) {
-        return sendError(res, err);
+        return sendApiError(req, res, err);
       }
     },
 
@@ -156,7 +143,7 @@ function createEventController({
         });
         return res.status(200).json({ attendee });
       } catch (err) {
-        return sendError(res, err);
+        return sendApiError(req, res, err);
       }
     },
 
@@ -172,7 +159,7 @@ function createEventController({
           logs: mapLogsForViewer(logs, viewerTimezone),
         });
       } catch (err) {
-        return sendError(res, err);
+        return sendApiError(req, res, err);
       }
     },
   };

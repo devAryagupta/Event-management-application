@@ -2,6 +2,7 @@ const { toRegisterUserDto } = require('../dto/registerUser.dto');
 const { toLoginUserDto } = require('../dto/loginuser.dto');
 const { toUpdateTimezoneDto } = require('../dto/updateTimezone.dto');
 const { listSupportedTimezones } = require('../../shared/timezone');
+const sendApiError = require('../http/sendApiError');
 
 function createUserController({
   registerUserUseCase,
@@ -16,7 +17,7 @@ function createUserController({
         const user = await registerUserUseCase.execute(input);
         return res.status(201).json({ user });
       } catch (err) {
-        return res.status(err.statusCode || 500).json({ error: err.message });
+        return sendApiError(req, res, err);
       }
     },
 
@@ -26,7 +27,7 @@ function createUserController({
         const result = await loginUserUseCase.execute(input);
         return res.status(200).json(result);
       } catch (err) {
-        return res.status(err.statusCode || 500).json({ error: err.message });
+        return sendApiError(req, res, err);
       }
     },
 
@@ -39,7 +40,7 @@ function createUserController({
         });
         return res.status(200).json({ user });
       } catch (err) {
-        return res.status(err.statusCode || 500).json({ error: err.message });
+        return sendApiError(req, res, err);
       }
     },
 
@@ -48,7 +49,7 @@ function createUserController({
         const users = await listUsersUseCase.execute();
         return res.status(200).json({ users });
       } catch (err) {
-        return res.status(err.statusCode || 500).json({ error: err.message });
+        return sendApiError(req, res, err);
       }
     },
 
@@ -56,7 +57,7 @@ function createUserController({
       try {
         return res.status(200).json({ timezones: listSupportedTimezones() });
       } catch (err) {
-        return res.status(500).json({ error: err.message || 'Could not list timezones' });
+        return sendApiError(req, res, err);
       }
     },
   };
