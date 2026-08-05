@@ -33,11 +33,11 @@ class AddAttendeeUseCase {
           duringEnd: event.endTime,
         });
       } catch (e) {
-        // unique or EXCLUDE overlap
         const err = new Error(
-          'User already in event or not available in this time range'
+          e.code === '23505' ? 'User already in event' : 'Not Available'
         );
         err.statusCode = 409;
+        if (e.code !== '23505') err.status = 'Not Available';
         throw err;
       }
       await this.auditRepository.create({

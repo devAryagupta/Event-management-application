@@ -28,7 +28,7 @@ function createEventController({
     },
     async list(req, res) {
       try {
-        const events = await listEventsUseCase.execute();
+        const events = await listEventsUseCase.execute(req.user.id, req.user.isAdmin === true);
         return res.status(200).json({ events });
       } catch (err) {
         return res.status(err.statusCode || 500).json({ error: err.message });
@@ -36,7 +36,7 @@ function createEventController({
     },
     async getbyid(req, res) {
       try {
-        const data = await getEventUseCase.execute(req.params.id);
+        const data = await getEventUseCase.execute(req.params.id, req.user.id, req.user.isAdmin === true);
         return res.status(200).json(data);
       } catch (err) {
         return res.status(err.statusCode || 500).json({ error: err.message });
@@ -68,7 +68,10 @@ function createEventController({
         });
         return res.status(200).json({ attendee });
       } catch (err) {
-        return res.status(err.statusCode || 500).json({ error: err.message });
+        return res.status(err.statusCode || 500).json({
+          error: err.message,
+          ...(err.status ? { status: err.status } : {}),
+        });
       }
     },
     async removeEvent(req, res) {

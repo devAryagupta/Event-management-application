@@ -89,5 +89,10 @@ class EventRepository extends EventRepositoryPort {
         const result = await this.baseRepository.query('SELECT * FROM events');
         return this.baseRepository.mapmany(result, this.toEntity);
     }
+    // list for the user :- a individual can only see the events that they are attending
+    async listForUser(userId) {
+        const result = await this.baseRepository.query('SELECT * FROM events WHERE id IN (SELECT event_id FROM participants WHERE user_id = $1)', [userId]);
+        return this.baseRepository.mapmany(result, this.toEntity);
+    }
 }
 module.exports = EventRepository;

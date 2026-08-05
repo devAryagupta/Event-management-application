@@ -11,5 +11,8 @@ class EventRepositoryPort {
     async findByTitle(title) {
         throw new Error('EventRepositoryPort.findByTitle is not implemented');
     }
+    async listForUser(userId) {
+        throw new Error('EventRepositoryPort.listForUser is not implemented');
+    }   
 }
 module.exports = EventRepositoryPort;
